@@ -3600,7 +3600,7 @@ function rechFlujo(id) {
 //  CARGAR COPIAS DESDE ONEDRIVE 
 async function copCargarDesdeOD(btn){
   var statusEl=document.getElementById('cop-od-status');
-  function setStatus(msg,color){
+  async function setStatus(msg,color){
     if(!statusEl)return;
     statusEl.style.display='block';
     statusEl.style.background=color==='ok'?'var(--tl)':color==='er'?'#fde8e8':'#fff9e8';
@@ -11600,7 +11600,7 @@ async function revdoc_estamparQRenPDF(){
     var y=H-80;
     var lineH=16;
 
-    function drawLabel(label,value,yPos){
+    async function drawLabel(label,value,yPos){
       page.drawText(label,{x:20,y:yPos,size:9,font:fontBold,color:PDFLib.rgb(0.4,0.4,0.4)});
       page.drawText(value||'—',{x:120,y:yPos,size:9,font:font,color:PDFLib.rgb(0.1,0.1,0.1)});
     }
@@ -14098,7 +14098,7 @@ async function odGuardarListado(silencioso){
     // IMPORTANTE: SheetJS siempre usa nombres de función en INGLÉS internamente.
     // Excel los convierte automáticamente al idioma local al abrir el archivo.
     // IF=SI, IFS=SI.CONJUNTO, TODAY=HOY, TRUE=VERDADERO, OR=O
-    function formulaJ(excelRow){
+    async function formulaJ(excelRow){
       var M='M'+excelRow, I='I'+excelRow;
       // Usar IF anidados en lugar de IFS para máxima compatibilidad
       // con Excel 2016 y anteriores que no tienen IFS.
@@ -14330,7 +14330,7 @@ async function odGuardarListado(silencioso){
         ['Auditrail','AuditTrail','Auditoria','Auditoría'].forEach(function(n){
           if(!wsAuditExist&&wb.Sheets[n]){wsAuditExist=wb.Sheets[n];nombreAudit=n;}
         });
-        function _trunc2(s){s=String(s||'');return s.length>32767?s.slice(0,32764)+'...':s;}
+        async function _trunc2(s){s=String(s||'');return s.length>32767?s.slice(0,32764)+'...':s;}
         if(!wsAuditExist||!nombreAudit){
           // Hoja no existe — crearla con encabezado
           nombreAudit='Auditrail';
@@ -14673,7 +14673,8 @@ if(document.readyState==='loading'){
 }
 
 
-// ── Functions restored from V46 ───────────────async function _buildListadoPDFadoPDF(lang){
+// ── Functions restored from V46 ──────────────────────
+async function _buildListadoPDF(lang){
   var es = lang==='es';
   var today = new Date();
   var dd  = String(today.getDate()).padStart(2,'0');
@@ -15306,7 +15307,11 @@ function etiqEnviarBrowserPrintHTTP(){
     };
     xhr.onerror=function(){resolve(false);};
     xhr.ontimeout=function(){resolve(false);};
-    xhr.send(async function etiqEnviarFallbackviarFallback(){
+    xhr.send();
+  });
+}
+
+async function etiqEnviarFallback(){
   // Si ningún método automático funciona: descargar .ZPL
   var blob=new Blob([_etiqZPLActual],{type:'application/octet-stream'});
   var url=URL.createObjectURL(blob);
@@ -15319,7 +15324,7 @@ function etiqEnviarBrowserPrintHTTP(){
   toast('⬇️ Archivo .ZPL descargado — ábrelo desde el Explorador de Windows para imprimir directamente en la Zebra ZD421','ok');
 }
 
-function etiqEnviarImpresora(){
+async function etiqEnviarImpresora(){
   if(!_etiqZPLActual){ toast('Primero genera el ZPL con el botón Imprimir seleccionados','er'); return; }
 
   // Método 1: Zebra Browser Print (instalado en el PC — localhost:9100)
@@ -15336,7 +15341,10 @@ function etiqEnviarImpresora(){
 
   // Ningún método funcionó — mostrar instrucciones sin descargar
   odSetInfo('','');
-  toast('⚠️ No se pudo conectar con la impresora. Verifica que Zebra Browser Print esté activo en la bandeja del siasync function etiqEnviarWebUSBn etiqEnviarWebUSB(){
+  toast('⚠️ No se pudo conectar con la impresora. Verifica que Zebra Browser Print esté activo en la bandeja del sistema.','error');
+}
+
+async function etiqEnviarWebUSB(){
   try{
     // Solicitar acceso al dispositivo USB Zebra
     // Vendor ID de Zebra Technologies: 0x0A5F
@@ -16237,7 +16245,7 @@ function generarListadoPDF(){
   if(!lang){toast('Selecciona un idioma','er');return;}
   closeMo('mo-pdf-idioma');
   toast(lang==='es'?'Generando PDF del Listado Maestro...':'Generating Master Document List PDF...','if');
-  setTimeout(function(){_buildListasync function getLogoImg;
+  setTimeout(function(){_buildListadoPDF(lang);},0);
 }
 
 function getLogoImg(cb){
@@ -16273,7 +16281,7 @@ function moDelConfirmar(){
     return;
   }
   document.getElementById('mo-del-just').style.display='none';
-  if(_moDelCallback){ _moDelCallback(txasync function moDelPedirnull; }
+  if(_moDelCallback){ _moDelCallback(txt); _moDelCallback=null; }
 }
 
 function moDelPedir(titulo, desc, callback){
@@ -16285,10 +16293,10 @@ function moDelPedir(titulo, desc, callback){
   document.getElementById('mo-del-just-err').style.display='none';
   _moDelCallback=callback;
   el.style.display='flex';
-  setTimeout(function(){document.getElementById('masync function odDiagnostico();},100);
-}
+  setTimeout(function(){document.getElementById('mo-del-just-txt').focus();},100);
 
-function odDiagnostico(){
+}
+async function odDiagnostico(){
   if(!OD.fileHandle){toast('Sin archivo seleccionado','er');return;}
   try{
     var file=await OD.fileHandle.getFile();
@@ -16330,7 +16338,7 @@ function odDiagnostico(){
   }catch(e){toast('Error: '+e.message,'er');}
 }
 
-function odDiagnosticoUsuarios(){
+async function odDiagnosticoUsuarios(){
   if(!OD.fileHandle){toast('Sin archivo','er');return;}
   try{
     var file=await OD.fileHandle.getFile();
@@ -16348,7 +16356,7 @@ function odDiagnosticoUsuarios(){
   }catch(e){toast('Error: '+e.message,'er');}
 }
 
-function odGuardarAhora(){
+async function odGuardarAhora(){
   if(_odGuardando) return;
   if(!OD.fileHandle||!OD.syncActivo){
     toast('No hay archivo OneDrive conectado — conéctalo en ⚙️ Configuración','er');
@@ -16492,7 +16500,7 @@ function odSaveBtnMostrar(){
   if(cd) cd.style.display='inline';
 }
 
-function odSeleccionarDesdeSeleccion(){
+async function odSeleccionarDesdeSeleccion(){
   if(!window.showDirectoryPicker){toast('Requiere Chrome o Edge actualizado','er');return;}
   var btn=document.querySelector('#od-seleccion-screen button');
   if(btn){btn.textContent='⏳ Seleccionando carpeta...';btn.disabled=true;}
